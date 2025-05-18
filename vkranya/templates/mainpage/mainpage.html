@@ -1,0 +1,359 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/mainpage/mainpage.css' %}">
+    <title>СППР ЯГТУ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="https://ystu.ru/">
+                <img src="{% static 'logo-ygtu.png' %}" alt="Логотип ЯГТУ">
+            </a>
+        </div>
+        <nav class="menu">
+            <a href="https://ystu.ru/admissions/">ПОСТУПАЮЩЕМУ</a>
+            <a href="https://ystu.ru/students/">СТУДЕНТУ</a>
+            <a href="https://ystu.ru/university/">УНИВЕРСИТЕТ</a>
+            <a href="https://ystu.ru/partneram/">ПАРТНЁРАМ</a>
+            <a href="https://ystu.ru/contacts/">КОНТАКТЫ</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Калькулятор абитуриента</h1>
+        <a>Узнайте свои шансы на поступление в Ярославский государственный технический университет</a>
+    </section>
+
+    <section class="form-section">
+        <h2>Введите баллы ЕГЭ</h2>
+        <form id="scores-form">
+            <div class="inputs">
+                <input type="number" id="math" min="0" max="100" placeholder="Математика">
+                <input type="number" id="russian" min="0" max="100" placeholder="Русский язык">
+                <input type="number" id="physics" min="0" max="100" placeholder="Физика">
+                <input type="number" id="informatics" min="0" max="100" placeholder="Информатика">
+                <input type="number" id="chemistry" min="0" max="100" placeholder="Химия">
+                <input type="number" id="biology" min="0" max="100" placeholder="Биология">
+                <input type="number" id="social" min="0" max="100" placeholder="Обществознание">
+                <input type="number" id="history" min="0" max="100" placeholder="История">
+                <input type="number" id="english" min="0" max="100" placeholder="Английский язык">
+                <input type="number" id="literature" min="0" max="100" placeholder="Литература">
+            </div>
+
+            <button onclick="calculateAdmission()" type="submit" class="submit-btn">Показать направления</button>
+        </form>
+    </section>
+
+    <section id="results" class="results-section">
+        <!-- Здесь будут выводиться результаты -->
+    </section>
+
+    <footer class="footer">
+        <div class="footer-columns">
+            <div>
+                <h3>СТУДЕНТУ</h3>
+                <ul>
+                    <li>Социальная поддержка</li>
+                    <li>Полезные документы</li>
+                    <li>Памятка студенту</li>
+                    <li>Расписание занятий</li>
+                    <li>Карьера</li>
+                </ul>
+            </div>
+            <div>
+                <h3>ПОСТУПАЮЩЕМУ</h3>
+                <ul>
+                    <li>Интеллектуальные системы</li>
+                    <li>Экономика и бух.учет</li>
+                    <li>Управление качеством</li>
+                    <li>Логистика</li>
+                    <li>Информационная безопасность</li>
+                </ul>
+            </div>
+            <div>
+                <h3>УНИВЕРСИТЕТ</h3>
+                <ul>
+                    <li>Сотрудники и преподаватели</li>
+                    <li>Наука</li>
+                    <li>История</li>
+                    <li>Реквизиты</li>
+                    <li>Контакты</li>
+                </ul>
+            </div>
+            <div>
+                <h3>Контакты</h3>
+                <p><strong>+7 (4852) 40-21-99</strong><br>По общим вопросам</p>
+                <p><strong>8-800-250-76-77</strong><br>Поступление</p>
+                <p>150023, г. Ярославль, <br>Московский пр., д. 88</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 1944-2025, ФГБОУ ВО «ЯГТУ»</p>
+            <p>ИТ поддержка</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/mainpage/mainpage.js' %}" defer></script>
+
+    <script>
+        // База данных специальностей ЯГТУ с минимальными баллами и проходными баллами прошлого года
+        const specialties = [
+            {
+                id: 1,
+                name: "Информатика и вычислительная техника",
+                code: "09.03.01",
+                faculty: "Институт информационных технологий",
+                subjects: ["Математика", "Информатика", "Русский язык"],
+                minScores: [50, 50, 40],
+                passingScore: 210,
+                places: 25,
+                competition: 3.2
+            },
+            {
+                id: 2,
+                name: "Машиностроение",
+                code: "15.03.01",
+                faculty: "Институт машиностроения",
+                subjects: ["Математика", "Физика", "Русский язык"],
+                minScores: [45, 45, 40],
+                passingScore: 195,
+                places: 30,
+                competition: 2.5
+            },
+            {
+                id: 3,
+                name: "Строительство",
+                code: "08.03.01",
+                faculty: "Строительный институт",
+                subjects: ["Математика", "Физика", "Русский язык"],
+                minScores: [40, 40, 40],
+                passingScore: 180,
+                places: 20,
+                competition: 2.0
+            },
+            {
+                id: 4,
+                name: "Экономика",
+                code: "38.03.01",
+                faculty: "Институт экономики и менеджмента",
+                subjects: ["Математика", "Обществознание", "Русский язык"],
+                minScores: [45, 45, 40],
+                passingScore: 200,
+                places: 15,
+                competition: 4.0
+            },
+            {
+                id: 5,
+                name: "Химическая технология",
+                code: "18.03.01",
+                faculty: "Химико-технологический институт",
+                subjects: ["Математика", "Химия", "Русский язык"],
+                minScores: [40, 50, 40],
+                passingScore: 185,
+                places: 18,
+                competition: 1.8
+            },
+            {
+                id: 6,
+                name: "Биотехнология",
+                code: "19.03.01",
+                faculty: "Химико-технологический институт",
+                subjects: ["Математика", "Химия", "Биология"],
+                minScores: [40, 45, 45],
+                passingScore: 190,
+                places: 15,
+                competition: 2.2
+            },
+            {
+                id: 7,
+                name: "Информационная безопасность",
+                code: "10.03.01",
+                faculty: "Институт информационных технологий",
+                subjects: ["Математика", "Информатика", "Русский язык"],
+                minScores: [55, 55, 40],
+                passingScore: 220,
+                places: 20,
+                competition: 3.5
+            }
+        ];
+
+        // Функция для расчета вероятности поступления
+        function calculateProbability(totalScore, passingScore, competition) {
+            const difference = totalScore - passingScore;
+            let probability;
+
+            if (difference > 30) {
+                probability = { value: 0.95, level: 'high' };
+            } else if (difference > 15) {
+                probability = { value: 0.75, level: 'high' };
+            } else if (difference > 0) {
+                probability = { value: 0.5, level: 'medium' };
+            } else if (difference > -15) {
+                probability = { value: 0.25, level: 'low' };
+            } else {
+                probability = { value: 0.1, level: 'low' };
+            }
+
+            // Корректировка на конкурс
+            if (competition > 3) probability.value *= 0.8;
+            else if (competition > 2) probability.value *= 0.9;
+
+            probability.value = Math.max(0.01, Math.min(0.99, probability.value));
+
+            return probability;
+        }
+
+        // Основная функция расчета
+        function calculateAdmission() {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+            // Получаем баллы из формы
+            const scores = {
+                "Математика": parseInt(document.getElementById('math').value) || 0,
+                "Русский язык": parseInt(document.getElementById('russian').value) || 0,
+                "Физика": parseInt(document.getElementById('physics').value) || 0,
+                "Информатика": parseInt(document.getElementById('informatics').value) || 0,
+                "Химия": parseInt(document.getElementById('chemistry').value) || 0,
+                "Биология": parseInt(document.getElementById('biology').value) || 0,
+                "Обществознание": parseInt(document.getElementById('social').value) || 0,
+                "История": parseInt(document.getElementById('history').value) || 0,
+                "Английский язык": parseInt(document.getElementById('english').value) || 0,
+                "Литература": parseInt(document.getElementById('literature').value) || 0
+            };
+
+            // Проверяем, что введен русский язык (обязательный предмет)
+            if (scores["Русский язык"] === 0) {
+                alert('Пожалуйста, введите баллы по русскому языку!');
+                return;
+            }
+
+            // Находим подходящие специальности
+            const suitableSpecialties = specialties.map(specialty => {
+                // Проверяем, что у абитуриента есть все нужные предметы
+                const hasAllSubjects = specialty.subjects.every(subject =>
+                    scores[subject] !== undefined
+                );
+
+                if (!hasAllSubjects) return null;
+
+                // Проверяем минимальные баллы
+                let meetsMinScores = true;
+                let totalScore = 0;
+
+                specialty.subjects.forEach((subject, index) => {
+                    if (scores[subject] < specialty.minScores[index]) {
+                        meetsMinScores = false;
+                    }
+                    totalScore += scores[subject];
+                });
+
+                if (!meetsMinScores) return null;
+
+                // Рассчитываем вероятность
+                const probability = calculateProbability(totalScore, specialty.passingScore, specialty.competition);
+
+                return {
+                    ...specialty,
+                    totalScore,
+                    probability
+                };
+            }).filter(specialty => specialty !== null);
+
+            // Сортируем по вероятности поступления
+            suitableSpecialties.sort((a, b) => b.probability.value - a.probability.value);
+
+            // Выводим результаты
+            displayResults(suitableSpecialties);
+        }
+
+        // Функция для отображения результатов
+        function displayResults(specialties) {
+            const resultsSection = document.getElementById('results');
+
+            if (specialties.length === 0) {
+                resultsSection.innerHTML = `
+      <div class="no-results">
+        <h3>Результаты</h3>
+        <p>К сожалению, по вашим баллам не найдено подходящих специальностей.</p>
+        <p>Попробуйте изменить баллы или обратитесь в приемную комиссию для консультации.</p>
+      </div>
+    `;
+                return;
+            }
+
+            let html = `
+    <div class="results-container">
+      <h3>Рекомендуемые направления</h3>
+      <p>Найдено ${specialties.length} специальностей, соответствующих вашим баллам:</p>
+
+      <div class="specialties-list">
+  `;
+
+            specialties.forEach(specialty => {
+                const probabilityPercent = Math.round(specialty.probability.value * 100);
+                const probabilityClass = specialty.probability.level;
+
+                html += `
+      <div class="specialty-card">
+        <div class="specialty-header">
+          <h4>${specialty.name}</h4>
+          <span class="specialty-code">${specialty.code}</span>
+        </div>
+
+        <div class="specialty-faculty">${specialty.faculty}</div>
+
+        <div class="specialty-details">
+          <div class="detail">
+            <span class="detail-label">Ваш балл:</span>
+            <span class="detail-value">${specialty.totalScore}</span>
+          </div>
+          <div class="detail">
+            <span class="detail-label">Проходной балл прошлого года:</span>
+            <span class="detail-value">${specialty.passingScore}</span>
+          </div>
+          <div class="detail">
+            <span class="detail-label">Конкурс:</span>
+            <span class="detail-value">${specialty.places} мест</span>
+          </div>
+        </div>
+
+        <div class="probability probability-${probabilityClass}">
+          Вероятность поступления: ${probabilityPercent}%
+          <div class="probability-bar">
+            <div class="probability-fill" style="width: ${probabilityPercent}%"></div>
+          </div>
+        </div>
+
+        <div class="subjects">
+          <h5>Учитываемые предметы:</h5>
+          <ul>
+            ${specialty.subjects.map((subject, index) => `
+              <li>${subject} (мин. ${specialty.minScores[index]})</li>
+            `).join('')}
+          </ul>
+        </div>
+      </div>
+    `;
+            });
+
+            html += `
+      </div>
+    </div>
+  `;
+
+            resultsSection.innerHTML = html;
+        }
+
+        // Добавляем обработчик события на форму
+        document.getElementById('scores-form').addEventListener('submit', calculateAdmission);
+    </script>
+</body>
+
+</html>
