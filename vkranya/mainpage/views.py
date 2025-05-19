@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q
 from .models import Specialty, DirectionSubject, PassingScore
 import json
 
+@ensure_csrf_cookie
 def mainpage(request):
-    """Рендеринг главной страницы с формой."""
+    """Рендеринг главной страницы с формой и CSRF-токеном"""
     return render(request, 'mainpage/mainpage.html')
 
 @require_POST
@@ -16,48 +18,68 @@ def calculate_admission(request):
     Возвращает JSON с подходящими направлениями и вероятностью поступления.
     """
     try:
-        # 1. Получаем данные из запроса
-        data = json.loads(request.body)
+        # 1. Получение данных из запроса (разные форматы)
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)  # Если данные в JSON
+        else:
+            data = request.POST.dict()  # Если обычная форма
+
+        # 2. Преобразование ключей в нижний регистр для унификации
         user_scores = {
             'математика': int(data.get('math', 0)),
             'русский язык': int(data.get('russian', 0)),
             'физика': int(data.get('physics', 0)),
             'информатика': int(data.get('informatics', 0)),
-            # ... остальные предметы
+            'химия': int(data.get('chemistry', 0)),
+            'биология': int(data.get('biology', 0)),
+            'обществознание': int(data.get('social', 0)),
+            'история': int(data.get('history', 0)),
+            'английский язык': int(data.get('english', 0)),
+            'литература': int(data.get('literature', 0))
         }
 
-        # 2. Проверка на обязательные предметы (например, русский)
-        if user_scores['русский язык'] == 0:
+        # 3. Валидация данных
+        if not all(0 <= score <= 100 for score in user_scores.values()):
             return JsonResponse(
-                {'error': 'Балл по русскому языку не может быть нулевым.'},
+                {'error': 'Все баллы должны быть в диапазоне от 0 до 100'},
                 status=400
             )
 
-        # 3. Поиск подходящих направлений
+        if user_scores['русский язык'] == 0:
+            return JsonResponse(
+                {'error': 'Балл по русскому языку не может быть нулевым'},
+                status=400
+            )
+
+        # 4. Поиск подходящих направлений
         results = []
-        specialties = Specialty.objects.prefetch_related('required_subjects')
+        specialties = Specialty.objects.prefetch_related(
+            'required_subjects__subject'
+        ).all()
 
         for specialty in specialties:
-            # Проверяем обязательные предметы направления
             required_subjects = specialty.required_subjects.filter(priority=True)
             if not required_subjects.exists():
                 continue
 
-            # Проверка минимальных баллов по обязательным предметам
-            meets_requirements = all(
-                user_scores.get(subj.subject.name.lower(), 0) >= subj.min_points
-                for subj in required_subjects
-            )
-            if not meets_requirements:
+            # Проверка обязательных предметов
+            valid = True
+            total_score = 0
+
+            for subj in specialty.required_subjects.all():
+                subject_name = subj.subject.name.lower()
+                user_score = user_scores.get(subject_name, 0)
+
+                if subj.priority and user_score < subj.min_points:
+                    valid = False
+                    break
+
+                total_score += user_score
+
+            if not valid:
                 continue
 
-            # Сумма баллов по всем предметам направления
-            total_score = sum(
-                user_scores.get(subj.subject.name.lower(), 0)
-                for subj in specialty.required_subjects.all()
-            )
-
-            # Получаем актуальный проходной балл (последний год)
+            # Получаем проходной балл
             passing_score = PassingScore.objects.filter(
                 direction=specialty
             ).order_by('-year').first()
@@ -65,37 +87,53 @@ def calculate_admission(request):
             if not passing_score:
                 continue
 
-            # Расчёт вероятности (простая линейная модель)
-            probability = min(
-                100,
-                max(0, int((total_score - passing_score.score) / passing_score.score * 50 + 50))
-            )
+            # Расчет вероятности (более точная формула)
+            score_ratio = total_score / passing_score.score
+            if score_ratio >= 1.2:
+                probability = 95
+            elif score_ratio >= 1.1:
+                probability = 85
+            elif score_ratio >= 1.0:
+                probability = 70
+            elif score_ratio >= 0.9:
+                probability = 40
+            else:
+                probability = 10
 
-            if probability >= 10:  # Исключаем варианты с шансом < 10%
-                results.append({
-                    'id': specialty.id,
-                    'name': specialty.name,
-                    'code': specialty.code,
-                    'faculty': specialty.faculty,
-                    'total_score': total_score,
-                    'passing_score': passing_score.score,
-                    'probability': probability,
-                    'subjects': [
-                        {
-                            'name': subj.subject.name,
-                            'min_points': subj.min_points,
-                            'is_required': subj.priority
-                        }
-                        for subj in specialty.required_subjects.all()
-                    ]
-                })
+            results.append({
+                'id': specialty.id,
+                'name': specialty.name,
+                'code': specialty.code,
+                'faculty': specialty.faculty,
+                'total_score': total_score,
+                'passing_score': passing_score.score,
+                'probability': probability,
+                'subjects': [
+                    {
+                        'name': subj.subject.name,
+                        'min_points': subj.min_points,
+                        'is_required': subj.priority
+                    }
+                    for subj in specialty.required_subjects.all()
+                ]
+            })
 
-        # Сортировка по убыванию вероятности
-        results.sort(key=lambda x: x['probability'], reverse=True)
+        # Сортировка и ограничение результатов
+        results.sort(key=lambda x: (-x['probability'], -x['total_score']))
+        results = results[:20]  # Лимит результатов
 
-        return JsonResponse({'results': results})
+        return JsonResponse({
+            'results': results,
+            'count': len(results)
+        })
 
     except json.JSONDecodeError:
-        return JsonResponse({'error': 'Неверный формат данных.'}, status=400)
+        return JsonResponse(
+            {'error': 'Неверный формат данных. Отправьте JSON или форму'},
+            status=400
+        )
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse(
+            {'error': f'Внутренняя ошибка сервера: {str(e)}'},
+            status=500
+        )

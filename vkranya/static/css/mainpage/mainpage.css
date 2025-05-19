@@ -96,3 +96,30 @@ body {
     justify-content: space-between;
     margin-top: 40px;
 }
+
+.required-badge {
+    display: inline-block;
+    background: #ffeb3b;
+    color: #333;
+    font-size: 0.8em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.probability-high {
+    color: #4caf50;
+}
+.probability-medium {
+    color: #ff9800;
+}
+.probability-low {
+    color: #f44336;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+}
