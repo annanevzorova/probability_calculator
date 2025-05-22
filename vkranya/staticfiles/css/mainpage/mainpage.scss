@@ -1,3 +1,10 @@
+@mixin font ($weight, $size, $color) {
+    font-family: Arial, sans-serif;
+    font-weight: $weight;
+    font-size: $size;
+    color: $color;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -12,6 +19,12 @@ body {
     align-items: center;
     padding: 15px 40px;
     font-size: 15px;
+
+    &__logo-container {
+        height: 45px;
+        width: auto;
+    }
+
 }
 
 .logo img {

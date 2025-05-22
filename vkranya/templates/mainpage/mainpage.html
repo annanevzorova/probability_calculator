@@ -1,22 +1,24 @@
 {% load static %}
+{% load sass_tags %}
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/mainpage/mainpage.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/mainpage/mainpage.css' %}"> -->
+    <link href="{% sass_src 'css/mainpage/mainpage.scss' %}" rel="stylesheet" type="text/css"/>
     <title>СППР ЯГТУ</title>
 </head>
 
 <body>
     <header class="header">
-        <div class="logo">
+        <div class="header__logo">
             <a href="https://ystu.ru/">
-                <img src="{% static 'logo-ygtu.png' %}" alt="Логотип ЯГТУ">
+                <img class="header__logo" src="{% static 'logo-ygtu.png' %}" alt="Логотип ЯГТУ">
             </a>
         </div>
-        <nav class="menu">
+        <nav class="header__menu">
             <a href="https://ystu.ru/admissions/">ПОСТУПАЮЩЕМУ</a>
             <a href="https://ystu.ru/students/">СТУДЕНТУ</a>
             <a href="https://ystu.ru/university/">УНИВЕРСИТЕТ</a>
@@ -25,16 +27,16 @@
         </nav>
     </header>
 
-    <section class="hero">
+    <section class="title">
         <h1>Калькулятор абитуриента</h1>
-        <a>Узнайте свои шансы на поступление в Ярославский государственный технический университет</a>
+        <span>Узнайте свои шансы на поступление в Ярославский государственный технический университет</span>
     </section>
 
     <section class="form-section">
         <h2>Введите баллы ЕГЭ</h2>
         <form id="scores-form">
             {% csrf_token %}
-            <div class="inputs">
+            <div class="form-section__inputs">
                 <input type="number" id="math" min="0" max="100" placeholder="Математика">
                 <input type="number" id="russian" min="0" max="100" placeholder="Русский язык">
                 <input type="number" id="physics" min="0" max="100" placeholder="Физика">

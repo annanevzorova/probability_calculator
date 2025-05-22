@@ -1,0 +1,169 @@
+@mixin font ($weight, $size, $color) {
+    font-family: Arial, sans-serif;
+    font-weight: $weight;
+    font-size: $size;
+    color: $color;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #e6f3f9, #d4ecf5);
+    color: #000;
+    padding: 20px 105px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 15px 40px;
+    font-size: 15px;
+
+    &__logo {
+        height: 45px;
+        width: auto;   
+    }
+    &__menu {
+        display: flex;
+        gap: 30px;
+        margin-left: 40px;
+        a {
+            text-decoration: none;
+            @include font(500, 0.9375rem, #000000);
+            transition: all 0.3s ease;
+            &:hover {
+                color: #0055FF;
+            }
+        }
+    }
+}
+
+.title {
+    padding: 40px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    h1 {
+        @include font(500, 65px, #000000);
+    }
+    span {
+        @include font(200, 35px, #000000);
+    }
+}
+
+.form-section {
+    text-align: center;
+    padding: 0px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    h2 {
+        @include font(600, 24px, #000000);
+    }
+
+    &__inputs {
+        padding: 10px;
+        border-radius: 20px;
+        border: 1px solid #999;
+        input {
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #999;
+            width: 200px;
+            margin: 10px;
+            @include font(300, 16px, #000000);
+        }
+    }
+}
+
+.inputs input {
+    width: 200px;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #999;
+    font-size: 16px;
+}
+
+.tags {
+    margin: 20px 0;
+}
+
+.tags button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: 1px solid #000;
+    border-radius: 25px;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.tags button:hover {
+    background: #cde6f4;
+}
+
+.submit-btn {
+    padding: 15px 30px;
+    background: #0a74da;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.submit-btn:hover {
+    background: #0559b3;
+}
+
+.result-section {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-columns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+}
+
+.required-badge {
+    display: inline-block;
+    background: #ffeb3b;
+    color: #333;
+    font-size: 0.8em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.probability-high {
+    color: #4caf50;
+}
+.probability-medium {
+    color: #ff9800;
+}
+.probability-low {
+    color: #f44336;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+}
