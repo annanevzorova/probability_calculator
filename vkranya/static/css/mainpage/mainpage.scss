@@ -4,11 +4,29 @@
     font-size: $size;
     color: $color;
 }
-
 * {
     padding: 0;
     margin: 0;
 }
+
+@media (max-width: 1200px) {
+    .specialty-card {
+        flex: 1 1 calc(33.333% - 20px); // 3 карточки в ряд
+    }
+}
+
+@media (max-width: 900px) {
+    .specialty-card {
+        flex: 1 1 calc(50% - 20px); // 2 карточки в ряд
+    }
+}
+
+@media (max-width: 600px) {
+    .specialty-card {
+        flex: 1 1 100%; // 1 карточка в ряд
+    }
+}
+
 body {
     font-family: Arial, sans-serif;
     background: linear-gradient(to bottom, #e6f3f9, #d4ecf5);
@@ -16,15 +34,38 @@ body {
     padding: 20px 105px;
 }
 
+section {
+    margin: 40px 0;
+}
 .header {
     display: flex;
     align-items: center;
     padding: 15px 40px;
     font-size: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+
+    // Стили для фиксированного состояния
+    &--fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 40px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(to bottom, #e6f3f9, #d4ecf5);
+        animation: slideDown 0.3s ease-out;
+    }
 
     &__logo {
         height: 45px;
         width: auto;   
+
+        .header--fixed & {
+            height: 35px; // Уменьшаем логотип в фиксированном состоянии
+        }
     }
     &__menu {
         display: flex;
@@ -37,12 +78,26 @@ body {
             &:hover {
                 color: #0055FF;
             }
+
+            .header--fixed & {
+                font-size: 0.875rem; // Немного уменьшаем шрифт в фиксированном состоянии
+            }
         }
     }
 }
 
+// Анимация появления фиксированного header
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
 .title {
-    padding: 40px 40px;
+    padding: 0 40px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -69,7 +124,8 @@ body {
     &__inputs {
         padding: 10px;
         border-radius: 20px;
-        border: 1px solid #999;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
         input {
             padding: 10px;
             border-radius: 20px;
@@ -79,56 +135,188 @@ body {
             @include font(300, 16px, #000000);
         }
     }
-}
 
-.inputs input {
-    width: 200px;
-    margin: 10px;
-    padding: 10px;
-    border-radius: 20px;
-    border: 1px solid #999;
-    font-size: 16px;
-}
+    &__submit-btn {
+        padding: 15px 30px;
+        background: #0a74da;
+        @include font(400, 16px, white);
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: all 0.3s ease;
 
-.tags {
-    margin: 20px 0;
-}
-
-.tags button {
-    margin: 5px;
-    padding: 10px 20px;
-    border: 1px solid #000;
-    border-radius: 25px;
-    background: white;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
-}
-
-.tags button:hover {
-    background: #cde6f4;
-}
-
-.submit-btn {
-    padding: 15px 30px;
-    background: #0a74da;
-    color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-.submit-btn:hover {
-    background: #0559b3;
+        &:hover {
+            background: #1168be;
+        }
+    }
 }
 
 .result-section {
     padding: 40px 20px;
     text-align: center;
     font-size: 18px;
+    margin-top: 40px;
+
+    &__title {
+        @include font(600, 24px, #000);
+    }
+    
+    &__container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    &__notice {
+        margin-bottom: 30px;
+        margin-top: 5px;
+        color: #666;
+    }
 }
+.specialties-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+}
+.specialty-card {
+    flex: 1 1 calc(25% - 20px); // 4 карточки в ряд
+    min-width: 280px;
+    max-width: 320px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        
+        a {
+            margin: 0;
+            @include font(600, 18px, #333);
+            text-decoration: none;
+            transition: all 0.3s ease;
+
+            &:hover {
+                color: #0055FF;
+            }
+        }
+    }
+    &__code {
+        color: #666;
+        font-size: 14px;
+    }
+    &__faculty {
+        color: #555;
+        font-size: 14px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    &__details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+}
+
+.detail {
+    display: flex;
+    flex-direction: column;
+    
+    &__label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    &__value {
+
+        font-weight: bold;
+        color: #333;
+    }
+}
+
+.probability {
+    margin: 15px 0;
+    font-weight: bold;fi
+    &__bar {
+        height: 20px;
+        background: #e9f9ff;
+        border-radius: 10px;
+        margin-top: 5px;
+        overflow: hidden;
+    }
+    &__bar-div {
+        height: 100%;
+        background: currentColor;
+    }
+}
+.probability-high {
+    color: #4caf50;
+}
+.probability-medium {
+    color: #ff9800;
+}
+.probability-low {
+    color: #f44336;
+}
+
+.subjects {
+    margin-top: auto;
+    text-align: left;
+
+    &__header {
+        @include font(600, 14px, #333);
+        margin: 15px 0 10px 0;
+    }
+    &__ul {
+        padding-left: 20px;
+        margin: 0;
+    }
+    &__li {
+        @include font(300, 13px, #555);
+        margin-bottom: 8px;
+        position: relative;
+    }
+}
+.required-badge {
+    display: inline-block;
+    background: #ffeb3b;
+    @include font(500, 0.8em, #333);
+    padding: 2px 5px;
+    border-radius: 10px;
+    margin-left: 5px;
+}
+
+.results {
+    display: flex;
+    justify-content: center;
+}
+.error {
+    &__title {
+        @include font(600, 24px, red);
+        margin-bottom: 10px;
+    }
+    &__text {
+        @include font(400, 18px, #000);
+    }
+}
+
+.no-results {
+    &__title {
+        @include font(600, 24px, #333);
+        margin-bottom: 10px;
+    }
+    &__text {
+        @include font(400, 18px, #000);
+    }
+}
+
 
 .footer {
     display: flex;
@@ -139,27 +327,6 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: 40px;
-}
-
-.required-badge {
-    display: inline-block;
-    background: #ffeb3b;
-    color: #333;
-    font-size: 0.8em;
-    padding: 2px 5px;
-    border-radius: 3px;
-    margin-left: 5px;
-    font-weight: bold;
-}
-
-.probability-high {
-    color: #4caf50;
-}
-.probability-medium {
-    color: #ff9800;
-}
-.probability-low {
-    color: #f44336;
 }
 
 .loading {
