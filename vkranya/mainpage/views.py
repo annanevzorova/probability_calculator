@@ -57,6 +57,8 @@ def calculate_admission(request):
             'required_subjects__subject'
         ).all()
 
+        MAX_POSSIBLE_SCORE = 300  # Максимально возможный суммарный балл
+
         for specialty in specialties:
             required_subjects = specialty.required_subjects.filter(priority=True)
             if not required_subjects.exists():
@@ -88,17 +90,22 @@ def calculate_admission(request):
                 continue
 
             # Расчет вероятности (более точная формула)
-            score_ratio = total_score / passing_score.score
-            if score_ratio >= 1.2:
-                probability = 95
-            elif score_ratio >= 1.1:
-                probability = 85
-            elif score_ratio >= 1.0:
-                probability = 70
-            elif score_ratio >= 0.9:
-                probability = 40
+            last_year_score = passing_score.score
+            probability = 0.0
+
+            if total_score >= last_year_score:
+                # Формула: probability = 0.5 + 0.5*(my_score - last_year_score)/(max_possible_score - last_year_score)
+                if MAX_POSSIBLE_SCORE == last_year_score:
+                    # Если прошлогодний балл уже максимальный
+                    probability = 0.5
+                else:
+                    probability = 0.5 + 0.5 * (total_score - last_year_score) / (MAX_POSSIBLE_SCORE - last_year_score)
             else:
-                probability = 10
+                # Формула: probability = 0.5 * (my_score / last_year_score)
+                probability = 0.5 * (total_score / last_year_score)
+
+            # Ограничиваем вероятность между 0 и 1 и преобразуем в проценты
+            probability_percent = round(min(max(probability, 0), 1) * 100)
 
             results.append({
                 'id': specialty.id,
@@ -107,7 +114,7 @@ def calculate_admission(request):
                 'faculty': specialty.faculty,
                 'total_score': total_score,
                 'passing_score': passing_score.score,
-                'probability': probability,
+                'probability': probability_percent,
                 'subjects': [
                     {
                         'name': subj.subject.name,

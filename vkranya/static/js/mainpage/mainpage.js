@@ -250,11 +250,11 @@ const HeaderComponent = {
         if (!Utils.elements.header) return; // Если header нет на странице, выходим
         
         let lastScrollTop = 0;
-        const headerHeight = Utils.elements.header.offsetHeight;
+        // const headerHeight = Utils.elements.header.offsetHeight;
         const scrollOffset = 100; // Отступ для срабатывания фиксации
         
         // Добавляем отступ для body равный высоте header
-        document.body.style.paddingTop = `${headerHeight}px`;
+        // document.body.style.paddingTop = `${headerHeight}px`;
         
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;

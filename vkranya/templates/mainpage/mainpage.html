@@ -12,97 +12,283 @@
 </head>
 
 <body>
-    <header class="header">
-        <div class="header__logo">
-            <a href="https://ystu.ru/">
-                <img class="header__logo" src="{% static 'logo-ygtu.png' %}" alt="Логотип ЯГТУ">
-            </a>
-        </div>
-        <nav class="header__menu">
-            <a href="https://ystu.ru/admissions/">ПОСТУПАЮЩЕМУ</a>
-            <a href="https://ystu.ru/students/">СТУДЕНТУ</a>
-            <a href="https://ystu.ru/university/">УНИВЕРСИТЕТ</a>
-            <a href="https://ystu.ru/partneram/">ПАРТНЁРАМ</a>
-            <a href="https://ystu.ru/contacts/">КОНТАКТЫ</a>
-        </nav>
-    </header>
-
-    <section class="title">
-        <h1>Калькулятор абитуриента</h1>
-        <span>Узнайте свои шансы на поступление в Ярославский государственный технический университет</span>
-    </section>
-
-    <section class="form-section">
-        <h2>Введите баллы ЕГЭ</h2>
-        <form id="scores-form">
-            {% csrf_token %}
-            <div class="form-section__inputs">
-                <input type="number" id="math" min="0" max="100" placeholder="Математика">
-                <input type="number" id="russian" min="0" max="100" placeholder="Русский язык">
-                <input type="number" id="physics" min="0" max="100" placeholder="Физика">
-                <input type="number" id="informatics" min="0" max="100" placeholder="Информатика">
-                <input type="number" id="chemistry" min="0" max="100" placeholder="Химия">
-                <input type="number" id="biology" min="0" max="100" placeholder="Биология">
-                <input type="number" id="social" min="0" max="100" placeholder="Обществознание">
-                <input type="number" id="history" min="0" max="100" placeholder="История">
-                <input type="number" id="english" min="0" max="100" placeholder="Английский язык">
-                <input type="number" id="literature" min="0" max="100" placeholder="Литература">
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__logo">
+                <a href="https://ystu.ru/">
+                    <img class="header__logo" src="{% static 'logo-ygtu.png' %}" alt="Логотип ЯГТУ">
+                </a>
             </div>
-
-            <button type="submit" class="form-section__submit-btn">Показать направления</button>
-        </form>
-    </section>
-
-    <section id="results" class="results-section">
-        <!-- Здесь будут выводиться результаты -->
-    </section>
-
+            <nav class="header__menu">
+                <a href="https://ystu.ru/admissions/">ПОСТУПАЮЩЕМУ</a>
+                <a href="https://ystu.ru/students/">СТУДЕНТУ</a>
+                <a href="https://ystu.ru/university/">УНИВЕРСИТЕТ</a>
+                <a href="https://ystu.ru/partneram/">ПАРТНЁРАМ</a>
+                <a href="https://ystu.ru/contacts/">КОНТАКТЫ</a>
+            </nav>
+        </header>
+        
+        <section class="title">
+            <h1>Калькулятор абитуриента</h1>
+            <span>Узнайте свои шансы на поступление в Ярославский государственный технический университет</span>
+        </section>
+        
+        <section class="form-section">
+            <h2>Введите баллы ЕГЭ</h2>
+            <form id="scores-form">
+                {% csrf_token %}
+                <div class="form-section__inputs">
+                    <input type="number" id="math" min="0" max="100" placeholder="Математика">
+                    <input type="number" id="russian" min="0" max="100" placeholder="Русский язык">
+                    <input type="number" id="physics" min="0" max="100" placeholder="Физика">
+                    <input type="number" id="informatics" min="0" max="100" placeholder="Информатика">
+                    <input type="number" id="chemistry" min="0" max="100" placeholder="Химия">
+                    <input type="number" id="biology" min="0" max="100" placeholder="Биология">
+                    <input type="number" id="social" min="0" max="100" placeholder="Обществознание">
+                    <input type="number" id="history" min="0" max="100" placeholder="История">
+                    <input type="number" id="english" min="0" max="100" placeholder="Английский язык">
+                    <input type="number" id="literature" min="0" max="100" placeholder="Литература">
+                </div>
+        
+                <button type="submit" class="form-section__submit-btn">Показать направления</button>
+            </form>
+        </section>
+        
+        <section id="results" class="results-section">
+            <!-- Здесь будут выводиться результаты -->
+        </section>
+    </div>
     <footer class="footer">
-        <div class="footer-columns">
-            <div>
-                <h3>СТУДЕНТУ</h3>
-                <ul>
-                    <li>Социальная поддержка</li>
-                    <li>Полезные документы</li>
-                    <li>Памятка студенту</li>
-                    <li>Расписание занятий</li>
-                    <li>Карьера</li>
+        <div class="footer__columns">
+            <div class="footer__container">
+                <h3 class="footer__header">СТУДЕНТУ</h3>
+                <ul class="footer__ul">
+                    <li>
+                        <a href="https://ystu.ru/information/students/sotsialnaya-pomoshch/">
+                            Социальная поддержка
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/standart/">
+                            Стандарты оформления работ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/normativnye-dokumenty-po-obucheniyu/">
+                            Полезные документы
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/pamyatka-studentu/">
+                            Памятка студенту
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/raspisanie-zanyatiy/">
+                            Расписание занятий
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/university/pordrazdelenia/sluzhby-i-otdely/studencheskiy-ofis/">
+                            Студенческий офис
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/university/pordrazdelenia/sluzhby-i-otdely/tsentr-razvitiya-karery/">
+                            Центр карьеры
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/vneuchebnaya-zhizn/">
+                            Профком студентов
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/pravovoy-likbez/">
+                            Правовой ликбез
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/students/aspirantu-/">
+                            Правовой ликбез
+                        </a>
+                    </li>
                 </ul>
             </div>
-            <div>
-                <h3>ПОСТУПАЮЩЕМУ</h3>
-                <ul>
-                    <li>Интеллектуальные системы</li>
-                    <li>Экономика и бух.учет</li>
-                    <li>Управление качеством</li>
-                    <li>Логистика</li>
-                    <li>Информационная безопасность</li>
+            <div class="footer__container">
+                <h3 class="footer__header">ПОСТУПАЮЩЕМУ</h3>
+                <ul class="footer__ul">
+                    <li>
+                        <a href="https://ystu.ru/information/admissions/napravleniya-podgotovki-i-obrazovatelnye-programmy/">
+                            НАПРАВЛЕНИЯ ПОДГОТОВКИ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/admissions/bakalavriat-zaochnaya-forma/">
+                            Заочный бакалавриат (специалитет). Регламент поступления.
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/admissions/bakalavriat-ochnaya-forma/">
+                            Очный бакалавриат (специалитет). Регламент поступления.
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/admissions/magistratura/">
+                            Магистратура. Регламент поступления.
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/admissions/best/">
+                            Программа «Поддержка лучших»
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/admissions/obuchenie-dlya-inostrannykh-grazhdan/">
+                            Обучение для иностранных граждан
+                        </a>
+                    </li>
                 </ul>
             </div>
-            <div>
-                <h3>УНИВЕРСИТЕТ</h3>
-                <ul>
-                    <li>Сотрудники и преподаватели</li>
-                    <li>Наука</li>
-                    <li>История</li>
-                    <li>Реквизиты</li>
-                    <li>Контакты</li>
+            <div class="footer__container">
+                <h3 class="footer__header">УНИВЕРСИТЕТ</h3>
+                <ul class="footer__ul">
+                    <li>
+                        <a href="https://ystu.ru/information/university/ob-universitete/">
+                            Добро пожаловать в ЯГТУ!
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/pravila-priema-na-obuchenie-po-programmam-spo/">
+                            Правила приема на обучение по программам СПО
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/users/">
+                            Сотрудники и преподаватели
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/nauka/">
+                            Наука
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/istoriya/">
+                            История
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/rekvizity-i-firmennyy-stil/">
+                            Реквизиты
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/arkhiv/">
+                            Архив
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/09-02-08-intellektualnye-integrirovannye-sistemy8694/">
+                            09.02.08 Интеллектуальные интегрированные системы
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/38-02-01-ekonomika-i-bukhgalterskiy-uchet-po-otraslyam/">
+                            38.02.01 Экономика и бухгалтерский учет (по отраслям)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/27-02-07-upravlenie-kachestvom-produktsii-protsessov-i-uslug-po-otraslyam/">
+                            27.02.07 Управление качеством продукции, процессов и услуг (по отраслям)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/38-02-03-operatsionnaya-deyatelnost-v-logistike/">
+                            38.02.03 Операционная деятельность в логистике
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/10-03-01-informatsionnaya-bezopasnost/">
+                            10.03.01 Информационная безопасность
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/endaument-fond-yagtu/">
+                            Эндаумент-фонд ЯГТУ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/15-02-09-additivnye-tekhnologii/">
+                            15.02.09 Аддитивные технологии
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/18-02-13-tekhnologiya-proizvodstva-izdeliy-iz-polimernykh-kompozitov/">
+                            18.02.13 Технология производства изделий из полимерных композитов
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/25-02-08-bpla/">
+                            25.02.08 БПЛА
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/26-02-02-sudostroenie/">
+                            26.02.02 Судостроение
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/sveden/">
+                            Сведения об образовательной организации
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/15-02-10/">
+                            15.02.10 Мехатроника и робототехника
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/01-04-03-mehanika-i-matmadelirovanie/">
+                            01.04.03 Механика и математическое моделирование
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.ystu.ru/university/pordrazdelenia/sluzhby-i-otdely/mil/">
+                            Военный учебный центр
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/otsenka-kachestva-raboty-yagtu/">
+                            Оценка качества работы ЯГТУ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.ystu.ru/wprog/og/">
+                            Обращения граждан
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ystu.ru/information/university/protivodeystvie-korruptsii/">
+                            Противодействие коррупции
+                        </a>
+                    </li>
                 </ul>
             </div>
-            <div>
-                <h3>Контакты</h3>
+            <div class="footer__container">
+                <h3 class="footer__header">Контакты</h3>
                 <p><strong>+7 (4852) 40-21-99</strong><br>По общим вопросам</p>
                 <p><strong>8-800-250-76-77</strong><br>Поступление</p>
                 <p>150023, г. Ярославль, <br>Московский пр., д. 88</p>
             </div>
         </div>
-        <div class="footer-bottom">
+        <div class="footer__bottom">
             <p>© 1944-2025, ФГБОУ ВО «ЯГТУ»</p>
             <p>ИТ поддержка</p>
         </div>
     </footer>
 
-    <script src="{% static 'js/mainpage/mainpage.js' %}" defer></script>
+<script src="{% static 'js/mainpage/mainpage.js' %}" defer></script>
 </body>
 
 </html>
