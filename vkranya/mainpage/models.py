@@ -55,7 +55,6 @@ class DirectionSubject(models.Model):
     class Meta:
         verbose_name = "Предмет направления"
         verbose_name_plural = "Предметы направлений"
-        # Уникальность комбинации направления и предмета
         unique_together = ('direction', 'subject')
 
 
