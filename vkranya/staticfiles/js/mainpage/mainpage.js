@@ -7,7 +7,8 @@ const Utils = {
         form: document.getElementById('scores-form'),       // Главная форма ввода баллов
         results: document.getElementById('results'),       // Блок для вывода результатов
         loading: document.getElementById('loading-indicator'), // Индикатор загрузки
-        error: document.getElementById('error-container')  // Блок ошибок
+        error: document.getElementById('error-container'),  // Блок ошибок
+        header: document.querySelector('.header')   // Блок шапки
     },
 
     // Константы приложения
@@ -94,29 +95,29 @@ const ResultsComponent = {
     templates: {
         // Индикатор загрузки (спиннер + текст)
         loading: `
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>Идет расчет ваших результатов...</p>
-      </div>
-    `,
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Идет расчет ваших результатов...</p>
+            </div>
+        `,
 
         // Шаблон ошибки (принимает сообщение)
         error: (message) => `
-      <div class="error">
-        <h3>Ошибка</h3>
-        <p>${Utils.escapeHtml(message)}</p>
-        <p>Попробуйте еще раз или обратитесь в поддержку.</p>
-      </div>
-    `,
+            <div class="error">
+                <h3 class="error__title">Ошибка</h3>
+                <p class="error__text">${Utils.escapeHtml(message)}</p>
+                <p class="error__text">Попробуйте еще раз или обратитесь в поддержку.</p>
+            </div>
+        `,
 
         // Шаблон для случая, когда направлений нет
         noResults: `
-      <div class="no-results">
-        <h3>Результаты</h3>
-        <p>К сожалению, по вашим баллам не найдено подходящих специальностей.</p>
-        <p>Попробуйте изменить баллы или обратитесь в приемную комиссию.</p>
-      </div>
-    `,
+            <div class="no-results">
+                <h3 class="no-results__title">Результаты</h3>
+                <p class="no-results__text">К сожалению, по вашим баллам не найдено подходящих специальностей.</p>
+                <p class="no-results__text">Попробуйте изменить баллы или обратитесь в приемную комиссию.</p>
+            </div>
+        `,
         // Шаблон карточки направления (принимает объект specialty)
         specialtyCard: (specialty) => {
             // Определяем класс для вероятности (high/medium/low)
@@ -127,32 +128,29 @@ const ResultsComponent = {
             // Генерируем HTML для карточки
             return `
         <div class="specialty-card">
-          <div class="specialty-header">
-            <h4>${Utils.escapeHtml(specialty.name)}</h4>
-            <span class="specialty-code">${Utils.escapeHtml(specialty.code)}</span>
+          <div class="specialty-card__header">
+            <a href="#">${Utils.escapeHtml(specialty.name)}</a>
+            <span class="specialty-card__code">${Utils.escapeHtml(specialty.code)}</span>
           </div>
-          <div class="specialty-faculty">${Utils.escapeHtml(specialty.faculty)}</div>
-          <div class="specialty-details">
+          <div class="specialty-card__faculty">${Utils.escapeHtml(specialty.faculty)}</div>
+          <div class="specialty-card__details">
             <div class="detail">
-              <span class="detail-label">Ваш балл:</span>
-              <span class="detail-value">${specialty.total_score}</span>
+              <span class="detail__label">Ваш балл:</span>
+              <span class="detail__value">${specialty.total_score}</span>
             </div>
             <div class="detail">
-              <span class="detail-label">Проходной балл:</span>
-              <span class="detail-value">${specialty.passing_score}</span>
+              <span class="detail__label">Проходной балл:</span>
+              <span class="detail__value">${specialty.passing_score}</span>
             </div>
           </div>
           <div class="probability probability-${probabilityClass}">
             Вероятность: ${specialty.probability}%
-            <div class="probability-bar">
-              <div style="width: ${specialty.probability}%"></div>
-            </div>
           </div>
           <div class="subjects">
-            <h5>Предметы:</h5>
-            <ul>
+            <h5 class="subjects__header">Предметы:</h5>
+            <ul class="subjects__ul">
               ${specialty.subjects.map(subj => `
-                <li>${Utils.escapeHtml(subj.name)} (мин. ${subj.min_points})
+                <li class="subjects__li">${Utils.escapeHtml(subj.name)} (мин. ${subj.min_points})
                   ${subj.is_required ? '<span class="required-badge">обязательный</span>' : ''}
                 </li>
               `).join('')}
@@ -185,9 +183,9 @@ const ResultsComponent = {
 
         // Генерируем HTML для всех карточек
         let html = `
-            <div class="results-container">
-                <h3>Рекомендуемые направления</h3>
-                ${results.length > 5 ? `<p class="results-notice">Показаны ${results.length} результатов</p>` : ''}
+            <div class="result-section__container">
+                <h3 class="result-section__title">Рекомендуемые направления</h3>
+                ${results.length > 5 ? `<p class="result-section__notice">Показаны ${results.length} результатов</p>` : ''}
                 <div class="specialties-list">
                     ${results.map(result => this.templates.specialtyCard(result)).join('')}
                 </div>
@@ -237,6 +235,70 @@ const FormValidator = {
             });
         });
 
+    }
+};
+
+/**
+ * Компонент для управления поведением header при скролле
+ */
+const HeaderComponent = {
+    // Инициализация компонента
+    init() {
+        if (!Utils.elements.header) return; // Если header нет на странице, выходим
+        
+        let lastScrollTop = 0;
+        // const headerHeight = Utils.elements.header.offsetHeight;
+        const scrollOffset = 100; // Отступ для срабатывания фиксации
+        
+        // Добавляем отступ для body равный высоте header
+        // document.body.style.paddingTop = `${headerHeight}px`;
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const isScrollingUp = scrollTop < lastScrollTop;
+            const isAtTop = scrollTop <= 50;
+            const isPastOffset = scrollTop > scrollOffset;
+            
+            // Фиксируем header если:
+            // 1. Скроллим вниз и прошли отступ ИЛИ
+            // 2. Скроллим вверх и header еще не зафиксирован И прошли отступ
+            if ((!isScrollingUp && isPastOffset) || 
+                (isScrollingUp && !this.isFixed() && isPastOffset)) {
+                this.fixHeader();
+            } 
+            // Возвращаем обычное состояние только если в самом верху страницы
+            else if (isAtTop) {
+                this.unfixHeader();
+            }
+            
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+
+        // Проверяем начальную позицию скролла
+        if ((window.pageYOffset || document.documentElement.scrollTop) > scrollOffset) {
+            this.fixHeader();
+        }
+    },
+
+    // Проверка, зафиксирован ли header
+    isFixed() {
+        return Utils.elements.header.classList.contains('header--fixed');
+    },
+    
+    // Фиксация header
+    fixHeader() {
+        if (Utils.elements.header.classList.contains('header--fixed')) return;
+        
+        Utils.elements.header.classList.add('header--fixed');
+        // Можно добавить дополнительные действия при фиксации
+    },
+    
+    // Возврат header в обычное состояние
+    unfixHeader() {
+        if (!Utils.elements.header.classList.contains('header--fixed')) return;
+        
+        Utils.elements.header.classList.remove('header--fixed');
+        // Можно добавить дополнительные действия при возврате
     }
 };
 
@@ -295,6 +357,8 @@ const AppController = {
     init() {
         FormValidator.setupLiveValidation(); // Включаем валидацию в реальном времени
         this.setupFormSubmit(); // Настраиваем отправку формы
+        HeaderComponent.init();     // Инициализируем компонент header
+
     }
 
 };
