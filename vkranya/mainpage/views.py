@@ -57,7 +57,7 @@ def calculate_admission(request):
             'required_subjects__subject'
         ).all()
 
-        MAX_POSSIBLE_SCORE = 300  # Максимально возможный суммарный балл
+        MAX_POSSIBLE_SCORE = 315  # Максимально возможный суммарный балл
 
         for specialty in specialties:
             required_subjects = specialty.required_subjects.filter(priority=True)
@@ -94,14 +94,8 @@ def calculate_admission(request):
             probability = 0.0
 
             if total_score >= last_year_score:
-                # Формула: probability = 0.5 + 0.5*(my_score - last_year_score)/(max_possible_score - last_year_score)
-                if MAX_POSSIBLE_SCORE == last_year_score:
-                    # Если прошлогодний балл уже максимальный
-                    probability = 0.5
-                else:
-                    probability = 0.5 + 0.5 * (total_score - last_year_score) / (MAX_POSSIBLE_SCORE - last_year_score)
+                probability = 0.5 + 0.5 * (total_score - last_year_score) / (MAX_POSSIBLE_SCORE - last_year_score)
             else:
-                # Формула: probability = 0.5 * (my_score / last_year_score)
                 probability = 0.5 * (total_score / last_year_score)
 
             # Ограничиваем вероятность между 0 и 1 и преобразуем в проценты

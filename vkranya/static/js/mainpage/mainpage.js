@@ -145,9 +145,6 @@ const ResultsComponent = {
           </div>
           <div class="probability probability-${probabilityClass}">
             Вероятность: ${specialty.probability}%
-            <div class="probability__bar">
-              <div style="width: ${specialty.probability}%" class="probability__bar-div"></div>
-            </div>
           </div>
           <div class="subjects">
             <h5 class="subjects__header">Предметы:</h5>
