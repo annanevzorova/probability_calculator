@@ -6,32 +6,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="{% static 'css/mainpage/mainpage.css' %}"> -->
     <link href="{% sass_src 'css/mainpage/mainpage.scss' %}" rel="stylesheet" type="text/css"/>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <title>СППР ЯГТУ</title>
 </head>
 
 <body>
     <div class="wrapper">
-        <header class="header">
+        <header class="header" x-data="{
+            open: false,
+            init() {
+                this.$watch('open', value => {
+                    if (value) {
+                        document.body.classList.add('body-no-scroll');
+                    } else {
+                        document.body.classList.remove('body-no-scroll');
+                    }
+                });
+            }
+        }">
             <div class="header__logo">
                 <a href="https://ystu.ru/">
                     <img class="header__logo" src="{% static 'logo-ygtu.png' %}" alt="Логотип ЯГТУ">
                 </a>
             </div>
-            <nav class="header__menu">
+            <nav class="header__menu" :class="{ 'header__menu--open': open }">
                 <a href="https://ystu.ru/admissions/">ПОСТУПАЮЩЕМУ</a>
                 <a href="https://ystu.ru/students/">СТУДЕНТУ</a>
                 <a href="https://ystu.ru/university/">УНИВЕРСИТЕТ</a>
                 <a href="https://ystu.ru/partneram/">ПАРТНЁРАМ</a>
                 <a href="https://ystu.ru/contacts/">КОНТАКТЫ</a>
             </nav>
+            <button class="header__burger-btn" @click="open = !open">
+                <span x-show="!open">☰</span>
+                <span x-show="open">✕</span>
+            </button>
         </header>
-        
+
         <section class="title">
             <h1>Калькулятор абитуриента</h1>
             <span>Узнайте свои шансы на поступление в Ярославский государственный технический университет</span>
         </section>
-        
+
         <section class="form-section">
             <h2>Введите баллы ЕГЭ</h2>
             <form id="scores-form">
@@ -45,23 +62,25 @@
                     <input type="number" id="biology" min="0" max="100" placeholder="Биология">
                     <input type="number" id="social" min="0" max="100" placeholder="Обществознание">
                     <input type="number" id="history" min="0" max="100" placeholder="История">
-                    <input type="number" id="english" min="0" max="100" placeholder="Английский язык">
                     <input type="number" id="literature" min="0" max="100" placeholder="Литература">
                 </div>
-        
+
                 <button type="submit" class="form-section__submit-btn">Показать направления</button>
             </form>
         </section>
-        
+
         <section id="results" class="results-section">
             <!-- Вывод результатов -->
         </section>
     </div>
     <footer class="footer">
-        <div class="footer__columns">
+        <div class="footer__columns" x-data="footerAccordion()" x-init="checkScreen()">
             <div class="footer__column">
-                <h3 class="footer__title">СТУДЕНТУ</h3>
-                <ul class="footer__list">
+                <h3 class="footer__title" @click="isMobile && toggleSection('student')">
+                    СТУДЕНТУ
+                    <span class="footer__accordion-icon" x-show="isMobile" :class="{ 'footer__accordion-icon--open': openSection === 'student' }"></span>
+                </h3>
+                <ul class="footer__list" x-show="!isMobile || openSection === 'student'" x-cloak>
                     <li class="footer__item">
                         <a class="footer__link" href="https://ystu.ru/information/students/sotsialnaya-pomoshch/">
                             Социальная поддержка
@@ -115,8 +134,11 @@
                 </ul>
             </div>
             <div class="footer__column">
-                <h3 class="footer__title">ПОСТУПАЮЩЕМУ</h3>
-                <ul class="footer__list">
+                <h3 class="footer__title" @click="isMobile && toggleSection('applicant')">
+                    ПОСТУПАЮЩЕМУ
+                    <span class="footer__accordion-icon" x-show="isMobile" :class="{ 'footer__accordion-icon--open': openSection === 'applicant' }"></span>
+                </h3>
+                <ul class="footer__list" x-show="!isMobile || openSection === 'applicant'" x-cloak>
                     <li class="footer__item">
                         <a class="footer__link" href="https://ystu.ru/information/admissions/napravleniya-podgotovki-i-obrazovatelnye-programmy/">
                             НАПРАВЛЕНИЯ ПОДГОТОВКИ
@@ -150,8 +172,11 @@
                 </ul>
             </div>
             <div class="footer__column">
-                <h3 class="footer__title">УНИВЕРСИТЕТ</h3>
-                <ul class="footer__list">
+                <h3 class="footer__title" @click="isMobile && toggleSection('university')">
+                    УНИВЕРСИТЕТ
+                    <span class="footer__accordion-icon" x-show="isMobile" :class="{ 'footer__accordion-icon--open': openSection === 'university' }"></span>
+                </h3>
+                <ul class="footer__list" x-show="!isMobile || openSection === 'university'" x-cloak>
                     <li class="footer__item">
                         <a  class="footer__link" href="https://ystu.ru/information/university/ob-universitete/">
                             Добро пожаловать в ЯГТУ!
@@ -188,68 +213,13 @@
                         </a>
                     </li>
                     <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/09-02-08-intellektualnye-integrirovannye-sistemy8694/">
-                            09.02.08 Интеллектуальные интегрированные системы
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/38-02-01-ekonomika-i-bukhgalterskiy-uchet-po-otraslyam/">
-                            38.02.01 Экономика и бухгалтерский учет (по отраслям)
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/27-02-07-upravlenie-kachestvom-produktsii-protsessov-i-uslug-po-otraslyam/">
-                            27.02.07 Управление качеством продукции, процессов и услуг (по отраслям)
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/38-02-03-operatsionnaya-deyatelnost-v-logistike/">
-                            38.02.03 Операционная деятельность в логистике
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/10-03-01-informatsionnaya-bezopasnost/">
-                            10.03.01 Информационная безопасность
-                        </a>
-                    </li>
-                    <li class="footer__item">
                         <a  class="footer__link" href="https://ystu.ru/information/university/endaument-fond-yagtu/">
                             Эндаумент-фонд ЯГТУ
                         </a>
                     </li>
                     <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/15-02-09-additivnye-tekhnologii/">
-                            15.02.09 Аддитивные технологии
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/18-02-13-tekhnologiya-proizvodstva-izdeliy-iz-polimernykh-kompozitov/">
-                            18.02.13 Технология производства изделий из полимерных композитов
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/25-02-08-bpla/">
-                            25.02.08 БПЛА
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/26-02-02-sudostroenie/">
-                            26.02.02 Судостроение
-                        </a>
-                    </li>
-                    <li class="footer__item">
                         <a  class="footer__link" href="https://ystu.ru/sveden/">
                             Сведения об образовательной организации
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/15-02-10/">
-                            15.02.10 Мехатроника и робототехника
-                        </a>
-                    </li>
-                    <li class="footer__item">
-                        <a  class="footer__link" href="https://ystu.ru/information/university/01-04-03-mehanika-i-matmadelirovanie/">
-                            01.04.03 Механика и математическое моделирование
                         </a>
                     </li>
                     <li class="footer__item">
@@ -275,8 +245,11 @@
                 </ul>
             </div>
             <div class="footer__column">
-                <h3 class="footer__title">Контакты</h3>
-                <div class="footer__contacts">
+                <h3 class="footer__title" @click="isMobile && toggleSection('contacts')">
+                    Контакты
+                    <span class="footer__accordion-icon" x-show="isMobile" :class="{ 'footer__accordion-icon--open': openSection === 'contacts' }"></span>
+                </h3>
+                <div class="footer__contacts" x-show="!isMobile || openSection === 'contacts'" x-cloak>
                     <p class="footer__contact"><strong>+7 (4852) 40-21-99</strong><br>По общим вопросам</p>
                     <p class="footer__contact"><strong>8-800-250-76-77</strong><br>По вопросам поступления</p>
                     <p class="footer__address">150023, г. Ярославль,<br>Московский пр., д. 88</p>
@@ -295,6 +268,27 @@
     </footer>
 
     <script src="{% static 'js/mainpage/mainpage.js' %}" defer></script>
+    <script>
+        function footerAccordion() {
+            return {
+                openSection: '',
+                isMobile: false,
+                checkScreen() {
+                    this.isMobile = window.innerWidth <= 1000;
+                    window.addEventListener('resize', () => {
+                        this.isMobile = window.innerWidth <= 1000;
+                    });
+                },
+                toggleSection(section) {
+                    if (this.openSection === section) {
+                        this.openSection = '';
+                    } else {
+                        this.openSection = section;
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Subject, Specialty, DirectionSubject, PassingScore
+from .models import Subject, Specialty, DirectionSubject, AdmissionStats
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
@@ -10,8 +10,8 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'code', 'name', 'faculty')
-    search_fields = ('name', 'code', 'faculty')
+    list_display = ('id', 'code', 'name', 'faculty', 'url')
+    search_fields = ('name', 'code', 'faculty', 'url')
     list_filter = ('faculty',)
     ordering = ('code',)
 
@@ -24,7 +24,7 @@ class DirectionSubjectAdmin(admin.ModelAdmin):
     autocomplete_fields = ('direction', 'subject')  # Для удобного поиска
 
 
-@admin.register(PassingScore)
+@admin.register(AdmissionStats)
 class PassingScoreAdmin(admin.ModelAdmin):
     list_display = ('direction', 'year', 'score')
     list_filter = ('year', 'direction__faculty')

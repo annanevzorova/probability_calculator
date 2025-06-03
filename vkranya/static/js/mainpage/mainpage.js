@@ -122,42 +122,61 @@ const ResultsComponent = {
         specialtyCard: (specialty) => {
             // Определяем класс для вероятности (high/medium/low)
             const probabilityClass =
-                specialty.probability >= 75 ? 'high' :
-                    specialty.probability >= 50 ? 'medium' : 'low';
+            specialty.probability === "Высокая" ? 'high' :
+            specialty.probability === "Выше среднего" ? 'highmedium' :
+            specialty.probability === "Средняя" ? 'medium' :
+            specialty.probability === "Ниже среднего" ? 'lowmedium' :
+            // specialty.probability === "Низкая" ? 'low';
+            'low';
 
-            // Генерируем HTML для карточки
-            return `
-        <div class="specialty-card">
-          <div class="specialty-card__header">
-            <a href="#">${Utils.escapeHtml(specialty.name)}</a>
-            <span class="specialty-card__code">${Utils.escapeHtml(specialty.code)}</span>
-          </div>
-          <div class="specialty-card__faculty">${Utils.escapeHtml(specialty.faculty)}</div>
-          <div class="specialty-card__details">
-            <div class="detail">
-              <span class="detail__label">Ваш балл:</span>
-              <span class="detail__value">${specialty.total_score}</span>
+        const showAdmissionNote = ['07.03.01', '54.03.01'].includes(specialty.code);
+        // Генерируем HTML для карточки
+        const detailUrl = specialty.url ? encodeURI(specialty.url.trim()) : '#';
+
+        return `
+            <div class="specialty-card">
+              <div class="specialty-card__header">
+                <a href="${detailUrl}" target="_blank" onclick="event.stopPropagation()" rel="noopener noreferrer">${Utils.escapeHtml(specialty.name)}</a>
+                <span class="specialty-card__code">${Utils.escapeHtml(specialty.code)}</span>
+              </div>
+              <div class="specialty-card__faculty">${Utils.escapeHtml(specialty.faculty)}</div>
+              <div class="specialty-card__details">
+                <div class="detail">
+                  <span class="detail__label">Ваш балл:</span>
+                  <span class="detail__value">${specialty.total_score}</span>
+                </div>
+                <div class="detail">
+                  <span class="detail__label"> Средний балл:</span>
+                  <span class="detail__value">${specialty.passing_score}</span>
+                </div>
+                <div class="detail">
+                  <span class="detail__label">Количество мест:</span>
+                  <span class="detail__value">${specialty.places}</span>
+                </div>
+              </div>
+              ${showAdmissionNote ? `
+                <div class="specialty-card__warning">
+                    Требуются дополнительные вступительные испытания (ДВИ)
+                </div>
+              ` : ''}
+              <div class="probability probability-${probabilityClass}">
+                Вероятность: ${specialty.probability}
+                ${showAdmissionNote ? `
+                    <span class="probability__note">(без учета вступительных экзаменов)</span>
+                ` : ''}
+              </div>
+              <div class="subjects">
+                <h5 class="subjects__header">Предметы:</h5>
+                <ul class="subjects__ul">
+                  ${specialty.subjects.map(subj => `
+                    <li class="subjects__li">${Utils.escapeHtml(subj.name)} (мин. ${subj.min_points})
+                      ${subj.is_required ? '<span class="required-badge">обязательный</span>' : ''}
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
             </div>
-            <div class="detail">
-              <span class="detail__label">Проходной балл:</span>
-              <span class="detail__value">${specialty.passing_score}</span>
-            </div>
-          </div>
-          <div class="probability probability-${probabilityClass}">
-            Вероятность: ${specialty.probability}%
-          </div>
-          <div class="subjects">
-            <h5 class="subjects__header">Предметы:</h5>
-            <ul class="subjects__ul">
-              ${specialty.subjects.map(subj => `
-                <li class="subjects__li">${Utils.escapeHtml(subj.name)} (мин. ${subj.min_points})
-                  ${subj.is_required ? '<span class="required-badge">обязательный</span>' : ''}
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-        </div>
-      `;
+          `;
         }
     },
 
@@ -178,10 +197,20 @@ const ResultsComponent = {
             return;
         }
 
-        // Сортируем по вероятности (от высокой к низкой)
-        results.sort((a, b) => b.probability - a.probability);
+        // results.sort((a, b) => b.probability - a.probability);
 
-        // Генерируем HTML для всех карточек
+        // Сортируем по вероятности (от высокой к низкой)
+        results.sort((a, b) => {
+            const priority = {
+                "Высокая": 5,
+                "Выше среднего": 4,
+                "Средняя": 3,
+                "Ниже среднего": 2,
+                "Низкая": 1
+            };
+            return priority[b.probability] - priority[a.probability];
+        });
+
         let html = `
             <div class="result-section__container">
                 <h3 class="result-section__title">Рекомендуемые направления</h3>
@@ -192,8 +221,16 @@ const ResultsComponent = {
             </div>
         `;
 
-        // Вставляем в DOM
         Utils.elements.results.innerHTML = html;
+
+        // Анимация появления карточек
+        const specialtyCards = Utils.elements.results.querySelectorAll('.specialty-card');
+        specialtyCards.forEach((card, index) => {
+            // Можно добавить небольшую задержку для каждой карточки, чтобы они появлялись поочередно
+            setTimeout(() => {
+                card.classList.add('is-visible');
+            }, index * 200); // Задержка в 100мс на каждую карточку
+        });
     }
 };
 
@@ -245,38 +282,41 @@ const HeaderComponent = {
     // Инициализация компонента
     init() {
         if (!Utils.elements.header) return; // Если header нет на странице, выходим
-        
-        let lastScrollTop = 0;
-        // const headerHeight = Utils.elements.header.offsetHeight;
-        const scrollOffset = 100; // Отступ для срабатывания фиксации
-        
-        // Добавляем отступ для body равный высоте header
-        // document.body.style.paddingTop = `${headerHeight}px`;
-        
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const isScrollingUp = scrollTop < lastScrollTop;
-            const isAtTop = scrollTop <= 50;
-            const isPastOffset = scrollTop > scrollOffset;
-            
-            // Фиксируем header если:
-            // 1. Скроллим вниз и прошли отступ ИЛИ
-            // 2. Скроллим вверх и header еще не зафиксирован И прошли отступ
-            if ((!isScrollingUp && isPastOffset) || 
-                (isScrollingUp && !this.isFixed() && isPastOffset)) {
-                this.fixHeader();
-            } 
-            // Возвращаем обычное состояние только если в самом верху страницы
-            else if (isAtTop) {
-                this.unfixHeader();
-            }
-            
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        });
 
-        // Проверяем начальную позицию скролла
-        if ((window.pageYOffset || document.documentElement.scrollTop) > scrollOffset) {
+        // Определяем высоту header, чтобы знать, когда его фиксировать
+        this.headerHeight = Utils.elements.header.offsetHeight;
+        // Отслеживаем прокрутку окна
+        window.addEventListener('scroll', () => this.handleScroll());
+    },
+
+    // Проверка, открыто ли бургер-меню
+    isBurgerMenuOpen() {
+        // Получаем Alpine.js компонент элемента header
+        // '__x' - это внутреннее свойство Alpine.js для доступа к данным компонента
+        const alpineComponent = Utils.elements.header.__x;
+        return alpineComponent && alpineComponent.getUnobservedData().open;
+    },
+
+    // Обработчик события прокрутки
+    handleScroll() {
+        // Если бургер-меню открыто, ничего не делаем с хедером (не фиксируем/открепляем)
+        if (this.isBurgerMenuOpen()) {
+            // Если хедер был зафиксирован, но меню открыли, его нужно открепить,
+            // чтобы избежать наложения и проблем с прокруткой подменю.
+            // Однако, если меню уже закрывает весь экран, это может быть не нужно.
+            // Пока оставим так: если бургер открыт - хедер не меняет свое состояние.
+            // Если нужно, чтобы при открытии бургера хедер всегда откреплялся:
+            // if (this.isFixed()) { this.unfixHeader(); }
+            return;
+        }
+
+        // Если прокрутка больше высоты header и header не зафиксирован, фиксируем
+        if (window.scrollY > this.headerHeight && !this.isFixed()) {
             this.fixHeader();
+        }
+        // Если прокрутка меньше или равна высоте header и header зафиксирован, открепляем
+        else if (window.scrollY <= this.headerHeight && this.isFixed()) {
+            this.unfixHeader();
         }
     },
 
@@ -284,21 +324,19 @@ const HeaderComponent = {
     isFixed() {
         return Utils.elements.header.classList.contains('header--fixed');
     },
-    
+
     // Фиксация header
     fixHeader() {
-        if (Utils.elements.header.classList.contains('header--fixed')) return;
-        
         Utils.elements.header.classList.add('header--fixed');
-        // Можно добавить дополнительные действия при фиксации
+        // Можно добавить здесь изменение padding для body, чтобы избежать "прыжка" контента
+        // document.body.style.paddingTop = `${this.headerHeight}px`;
     },
-    
-    // Возврат header в обычное состояние
+
+    // Открепление header
     unfixHeader() {
-        if (!Utils.elements.header.classList.contains('header--fixed')) return;
-        
         Utils.elements.header.classList.remove('header--fixed');
-        // Можно добавить дополнительные действия при возврате
+        // Убираем padding, если он был добавлен
+        // document.body.style.paddingTop = '0';
     }
 };
 

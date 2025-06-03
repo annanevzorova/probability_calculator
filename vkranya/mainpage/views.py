@@ -2,8 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.db.models import Q
-from .models import Specialty, DirectionSubject, PassingScore
+from .models import Specialty, AdmissionStats
 import json
 
 @ensure_csrf_cookie
@@ -34,7 +33,6 @@ def calculate_admission(request):
             'биология': int(data.get('biology', 0)),
             'обществознание': int(data.get('social', 0)),
             'история': int(data.get('history', 0)),
-            'английский язык': int(data.get('english', 0)),
             'литература': int(data.get('literature', 0))
         }
 
@@ -57,22 +55,26 @@ def calculate_admission(request):
             'required_subjects__subject'
         ).all()
 
-        MAX_POSSIBLE_SCORE = 315  # Максимально возможный суммарный балл
-
         for specialty in specialties:
             required_subjects = specialty.required_subjects.filter(priority=True)
+            optional_subjects = specialty.required_subjects.filter(priority=False)
             if not required_subjects.exists():
                 continue
+
+            # Проверяем, требует ли направление ДВИ (по названию или коду)
+            specialty_name = specialty.name.lower()
+            has_dvi = ("Архитектура" in specialty_name or
+                       "Дизайн" in specialty_name)
 
             # Проверка обязательных предметов
             valid = True
             total_score = 0
 
-            for subj in specialty.required_subjects.all():
+            for subj in required_subjects:
                 subject_name = subj.subject.name.lower()
                 user_score = user_scores.get(subject_name, 0)
 
-                if subj.priority and user_score < subj.min_points:
+                if user_score < subj.min_points:
                     valid = False
                     break
 
@@ -81,25 +83,66 @@ def calculate_admission(request):
             if not valid:
                 continue
 
-            # Получаем проходной балл
-            passing_score = PassingScore.objects.filter(
+            best_optional_score = 0
+            best_optional_name = None
+            has_valid_optional = False
+
+            # Если есть предметы по выбору, пробуем найти лучший
+            if optional_subjects.exists():
+                for subj in optional_subjects:
+                    subject_name = subj.subject.name.lower()
+                    user_score = user_scores.get(subject_name, 0)
+
+                    if user_score >= subj.min_points:
+                        has_valid_optional = True
+                        if user_score > best_optional_score:
+                            best_optional_score = user_score
+                            best_optional_name = subj.subject.name
+
+                        # Если предметы по выбору есть, но ни один не подходит - пропускаем направление
+                if not has_valid_optional:
+                    continue
+                # Добавляем лучший предмет по выбору, если нашли
+                if best_optional_score > 0:
+                    total_score += best_optional_score
+
+            # Получаем средний балл
+            admission_stats = AdmissionStats.objects.filter(
                 direction=specialty
             ).order_by('-year').first()
 
-            if not passing_score:
+            if not admission_stats:
                 continue
 
             # Расчет вероятности (более точная формула)
-            last_year_score = passing_score.score
-            probability = 0.0
+            average_score = admission_stats.score
 
-            if total_score >= last_year_score:
-                probability = 0.5 + 0.5 * (total_score - last_year_score) / (MAX_POSSIBLE_SCORE - last_year_score)
+            difference = 1 - (total_score/average_score)
+
+            if difference <= -0.6:
+                probability = "Высокая"
+            elif -0.6 < difference <= -0.3:
+                probability = "Выше среднего"
+            elif -0.3 < difference <= 0:
+                probability = "Средняя"
+            elif 0 < difference <= 0.3:
+                probability = "Ниже среднего"
             else:
-                probability = 0.5 * (total_score / last_year_score)
+                probability = "Низкая"
 
-            # Ограничиваем вероятность между 0 и 1 и преобразуем в проценты
-            probability_percent = round(min(max(probability, 0), 1) * 100)
+            subjects_info = []
+            for subj in specialty.required_subjects.all():
+                subject_name = subj.subject.name.lower()
+                is_selected = (not subj.priority and
+                               subj.subject.name == best_optional_name)
+
+                subjects_info.append({
+                    'name': subj.subject.name,
+                    'min_points': subj.min_points,
+                    'is_required': subj.priority,
+                    'user_score': user_scores.get(subject_name, 0),
+                    'is_selected': is_selected
+                })
 
             results.append({
                 'id': specialty.id,
@@ -107,20 +150,15 @@ def calculate_admission(request):
                 'code': specialty.code,
                 'faculty': specialty.faculty,
                 'total_score': total_score,
-                'passing_score': passing_score.score,
-                'probability': probability_percent,
-                'subjects': [
-                    {
-                        'name': subj.subject.name,
-                        'min_points': subj.min_points,
-                        'is_required': subj.priority
-                    }
-                    for subj in specialty.required_subjects.all()
-                ]
+                'passing_score': admission_stats.score,
+                'places': admission_stats.number_of_places,
+                'probability': probability,
+                'subjects': subjects_info,
+                'used_optional_subject': best_optional_name,
+                'url': specialty.url
             })
 
         # Сортировка и ограничение результатов
-        results.sort(key=lambda x: (-x['probability'], -x['total_score']))
         results = results[:20]  # Лимит результатов
 
         return JsonResponse({

@@ -17,6 +17,12 @@ class Specialty(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название направления")
     code = models.CharField(max_length=50, verbose_name="Код направления")
     faculty = models.CharField(max_length=255, verbose_name="Факультет")
+    url = models.URLField(
+        max_length=500,
+        verbose_name="URL страницы специальности",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return f"{self.code} - {self.name}"
@@ -59,21 +65,22 @@ class DirectionSubject(models.Model):
 
 
 # Модель для хранения проходных баллов по годам
-class PassingScore(models.Model):
+class AdmissionStats(models.Model):
     direction = models.ForeignKey(
         Specialty,
         on_delete=models.CASCADE,
         verbose_name="Направление",
-        related_name='passing_scores'
+        related_name='admission_stats'
     )
     year = models.PositiveSmallIntegerField(verbose_name="Год")
-    score = models.PositiveSmallIntegerField(verbose_name="Проходной балл")
+    score = models.PositiveSmallIntegerField(verbose_name="Средний балл")
+    number_of_places = models.PositiveSmallIntegerField(verbose_name="Количество мест")
 
     def __str__(self):
         return f"{self.direction} ({self.year}): {self.score}"
 
     class Meta:
-        verbose_name = "Проходной балл"
-        verbose_name_plural = "Проходные баллы"
+        verbose_name = "Средний балл"
+        verbose_name_plural = "Средние баллы"
         # Уникальность комбинации направления и года
         unique_together = ('direction', 'year')
