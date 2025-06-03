@@ -61,11 +61,6 @@ def calculate_admission(request):
             if not required_subjects.exists():
                 continue
 
-            # Проверяем, требует ли направление ДВИ (по названию или коду)
-            specialty_name = specialty.name.lower()
-            has_dvi = ("Архитектура" in specialty_name or
-                       "Дизайн" in specialty_name)
-
             # Проверка обязательных предметов
             valid = True
             total_score = 0
